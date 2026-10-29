@@ -22,13 +22,10 @@ Modül yazma rehberi: admin-core reposunda `docs/MODUL-YAZMA.md`.
 - Geriye dönük uyumu bozan her değişiklikte `ContractVersion` artırılır ve yeni **minor** etiket atılır (`v0.x.0`).
 - Modül, `Manifest.Requires` alanına `module.ContractVersion` yazar; çekirdek farklı sürümde açılmaz.
 
-## Private repo
+## Kurulum
 
-Bu repo private. Bağımlı repolarda:
+Repo public; token veya ek ayar gerekmez:
 
 ```bash
-go env -w GOPRIVATE=github.com/daybull/*
-git config --global url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf "https://github.com/"
+go get github.com/daybull/admin-sdk@latest
 ```
-
-`GH_TOKEN`: bu repoda **Contents: Read-only** yetkili fine-grained token.
