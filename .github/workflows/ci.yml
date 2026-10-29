@@ -5,17 +5,34 @@ on:
     branches: [main]
   pull_request:
 
+# Varsayılan token sadece okuyabilir.
+permissions:
+  contents: read
+
+# Aynı dala yeni push gelince eski çalışmayı iptal et.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      # Action'lar commit hash'ine sabit (etiket sonradan değiştirilemez); Dependabot günceller.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          go-version-file: go.mod
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          # go.mod'daki "go 1.26.0" sadece minimum; kontrol her zaman son güvenlik yamalı sürümde.
+          go-version: stable
+          check-latest: true
       - name: Lint
         run: |
           test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
           go vet ./...
+      - name: Güvenlik taraması
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...
       - name: Build
         run: go build ./...
