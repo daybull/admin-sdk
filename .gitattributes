@@ -1,0 +1,2 @@
+# Docker içindeki gofmt için tüm metin dosyaları LF satır sonuyla çıkarılır.
+* text=auto eol=lf

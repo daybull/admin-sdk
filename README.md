@@ -1,0 +1,34 @@
+# admin-sdk
+
+[admin-core](https://github.com/daybull/admin-core) ile modüller arasındaki **sözleşme**. Modüller çekirdeğe değil, sadece bu pakete (ve huma, pgx) bağımlıdır.
+
+```go
+import "github.com/daybull/admin-sdk/module"
+```
+
+## İçerik
+
+| Tip | Görev |
+|---|---|
+| `module.Module` | Her modülün uyguladığı arayüz: `Manifest`, `Migrations`, `Register` |
+| `module.Manifest` | Kimlik, yetkiler, admin menüsü, `Requires` (sözleşme sürümü) |
+| `module.Deps` | Çekirdeğin verdiği servisler: DB, logger, `Auditor` |
+| `module.Protect` | Operasyonu yetkiye bağlayarak kaydeder |
+
+Modül yazma rehberi: admin-core reposunda `docs/MODUL-YAZMA.md`.
+
+## Sürümleme
+
+- Geriye dönük uyumu bozan her değişiklikte `ContractVersion` artırılır ve yeni **minor** etiket atılır (`v0.x.0`).
+- Modül, `Manifest.Requires` alanına `module.ContractVersion` yazar; çekirdek farklı sürümde açılmaz.
+
+## Private repo
+
+Bu repo private. Bağımlı repolarda:
+
+```bash
+go env -w GOPRIVATE=github.com/daybull/*
+git config --global url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf "https://github.com/"
+```
+
+`GH_TOKEN`: bu repoda **Contents: Read-only** yetkili fine-grained token.
