@@ -9,6 +9,7 @@
 //
 //	1: çekirdek içinde pkg/module
 //	2: ayrı repo github.com/daybull/admin-sdk/module
+//	3: Manifest.Depends (modül bağımlılığı), Manifest.Settings + Deps.Settings (modül ayarları)
 package module
 
 import (
@@ -23,7 +24,7 @@ import (
 
 // ContractVersion, modül sözleşmesinin sürümüdür. Modül, Manifest.Requires
 // alanında desteklediği sürümü belirtir; uyuşmazsa çekirdek açılmaz.
-const ContractVersion = 2
+const ContractVersion = 3
 
 // Module, her eklentinin uygulaması gereken arayüzdür.
 type Module interface {
@@ -47,6 +48,13 @@ type Manifest struct {
 	Requires    int          `json:"requires" doc:"Desteklenen sözleşme sürümü"`
 	Permissions []Permission `json:"permissions"`
 	Menu        []MenuItem   `json:"menu"`
+	// Depends, bu modülün çalışması için açık olması gereken modüllerdir.
+	// Çekirdek: bağımlılık kurulumda yoksa ya da döngü varsa açılmaz;
+	// bağımlılığın lisansı yoksa bu modül de kapalı kalır. Migration'lar
+	// bağımlılıktan sonra çalışır (bağımlılığın tablosuna FK verilebilir).
+	Depends []string `json:"depends,omitempty" doc:"Bu modülün çalışması için gereken modüller"`
+	// Settings, müşteri bazında panelden değiştirilebilen ayarlardır.
+	Settings []Setting `json:"settings,omitempty" doc:"Modül ayarları (panelde form olarak gösterilir)"`
 }
 
 // Permission, modülün tanımladığı bir yetkidir. Key "<modül-id>." ile başlamalıdır.
@@ -65,9 +73,10 @@ type MenuItem struct {
 
 // Deps, çekirdeğin modüllere sağladığı ortak servislerdir.
 type Deps struct {
-	DB    *pgxpool.Pool
-	Log   *slog.Logger
-	Audit Auditor
+	DB       *pgxpool.Pool
+	Log      *slog.Logger
+	Audit    Auditor
+	Settings Settings // modülün kendi ayarları (Manifest.Settings)
 }
 
 // Auditor, denetim kaydı yazar. Kullanıcı ve IP bilgisi ctx'ten otomatik alınır.
